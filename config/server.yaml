@@ -1,0 +1,5 @@
+connection: "host=localhost port=5432 user=postgres password=12345 dbname=testTask sslmode=disable"
+httpServer:
+  address: "127.0.0.1:8001"
+  timeout: 6s
+  idleTimeout: 30s
