@@ -19,7 +19,7 @@ type HTTPServer struct {
 }
 
 func Load() (*Config, error) {
-	configPath := "github.com/bifk/testTask/config/server/yaml"
+	configPath := "config/server.yaml"
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		return &Config{}, errors.New("Файл конфига не найден по следующему пути: " + configPath)
@@ -28,7 +28,7 @@ func Load() (*Config, error) {
 	var config Config
 
 	if err := cleanenv.ReadConfig(configPath, &config); err != nil {
-		return &Config{}, errors.New("Не удается прочитать конфиг: " + configPath)
+		return &Config{}, errors.New("Некоректный конфиг: " + configPath)
 	}
 
 	return &config, nil
