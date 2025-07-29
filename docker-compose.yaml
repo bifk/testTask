@@ -4,8 +4,6 @@ services:
   app:
     container_name: testTask
     build: ./
-    depends_on:
-      - db
     volumes:
       - ./app:/usr/local/src/app
     ports:
@@ -13,11 +11,14 @@ services:
     restart: always
     env_file:
       - .env
-    network_mode: bridge
+    networks:
+     - pgnetwork
+    depends_on:
+      - pgsql
 
 
-  db:
-    container_name: postgres
+  pgsql:
+    container_name: pgsql
     image: postgres
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
@@ -26,6 +27,11 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - .postgres:/var/lib/postgres/data
+      - ./postgres_data:/var/lib/postgresql/data
     restart: always
-    network_mode: bridge
+    networks:
+      - pgnetwork
+
+networks:
+  pgnetwork:
+    driver: bridge
