@@ -6,5 +6,5 @@ import (
 
 type Wallet struct {
 	Address string
-	Amount  decimal.Decimal
+	Balance decimal.Decimal
 }

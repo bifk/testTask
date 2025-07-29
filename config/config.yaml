@@ -1,0 +1,4 @@
+httpServer:
+  address: "0.0.0.0:8001"
+  timeout: 6s
+  idleTimeout: 30s

@@ -8,7 +8,6 @@ import (
 )
 
 type Config struct {
-	Connection string `yaml:"connection" env-required:"true"`
 	HTTPServer `yaml:"httpServer"`
 }
 
@@ -19,7 +18,7 @@ type HTTPServer struct {
 }
 
 func Load() (*Config, error) {
-	configPath := "config/server.yaml"
+	configPath := "config/config.yaml"
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		return &Config{}, errors.New("Файл конфига не найден по следующему пути: " + configPath)
