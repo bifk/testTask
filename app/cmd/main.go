@@ -19,14 +19,17 @@ import (
 )
 
 func main() {
+	// Инициализация конфига
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Инициализация логгирования
 	logger.Init()
 	l := logger.GetLogger()
 
+	// Инициализация базы данных
 	db, err := postgres.New()
 	if err != nil {
 		l.Error(err)
@@ -37,6 +40,7 @@ func main() {
 		l.Error(err)
 	}
 
+	// Инициализация роутера
 	router := chi.NewRouter()
 	router.Use(middleware.RequestID)
 	router.Use(middleware.Logger)

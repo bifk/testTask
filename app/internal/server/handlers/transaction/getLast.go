@@ -15,7 +15,7 @@ type LastGetter interface {
 
 type GetLastResponse struct {
 	resp.Response
-	Transactions []models.Transaction `json:"transactions,omitempty"`
+	Transactions []models.Transaction `json:"transactions"`
 }
 
 func GetLast(lastGetter LastGetter, logg *logger.Logger) http.HandlerFunc {
@@ -23,9 +23,12 @@ func GetLast(lastGetter LastGetter, logg *logger.Logger) http.HandlerFunc {
 		const op = "handlers.transaction.GetLast"
 		countStr := r.URL.Query().Get("count")
 
-		count, err := strconv.Atoi(countStr)
+		var count int
+
+		// Проверка на корректность параметра count
+		var err error
+		count, err = strconv.Atoi(countStr)
 		if err != nil || count < 0 {
-			logg.Errorf("%s: %s", op, "Некоректный параметр count")
 			w.WriteHeader(http.StatusBadRequest)
 			render.JSON(w, r, resp.Error("Некоректный параметр count"))
 

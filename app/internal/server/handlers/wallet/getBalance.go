@@ -26,7 +26,6 @@ func GetBalance(balanceGetter BalanceGetter, logg *logger.Logger) http.HandlerFu
 
 		wallet, err := balanceGetter.GetWallet(address)
 		if err != nil {
-			logg.Errorf("%s: %s", op, "Не найден кошелек по данному адрессу: "+address)
 			w.WriteHeader(http.StatusNotFound)
 			render.JSON(w, r, resp.Error("Не найден кошелек по данному адрессу: "+address))
 

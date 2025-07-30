@@ -35,11 +35,23 @@ func Send(sender Sender, logg *logger.Logger) http.HandlerFunc {
 
 			return
 		}
+		defer r.Body.Close()
+		// Проверка на корректность параметра amount
+		if amount, ok := req.Amount.Float64(); ok && amount < 0 {
+			render.JSON(w, r, resp.Error("Некоректно указан параметр amount"))
+
+			return
+		}
+
+		// Проверка на корректность адреса кошельков
+		if req.From == "" || req.To == "" {
+			render.JSON(w, r, resp.Error("Некоректно указан адресс одного из кошельков"))
+			return
+		}
 
 		err = sender.Send(req.From, req.To, req.Amount)
 		if err != nil {
-			logg.Errorf("%s: %s", op, err.Error())
-			w.WriteHeader(http.StatusConflict)
+			w.WriteHeader(http.StatusBadRequest)
 			render.JSON(w, r, resp.Error(err.Error()))
 			return
 		}

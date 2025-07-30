@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/bifk/testTask/internal/domain/models"
 	"github.com/bifk/testTask/internal/logger"
@@ -17,6 +18,7 @@ type DataBase struct {
 	db *sql.DB
 }
 
+// Подключение базы данных и, при необходимости, первоначальные миграции
 func New() (*DataBase, error) {
 	const op = "dataBase.postgres.New"
 	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -70,6 +72,7 @@ CREATE TABLE IF NOT EXISTS transaction(
 	return &DataBase{db: db}, nil
 }
 
+// Создание кошельков при первом запуске
 func (db *DataBase) Init(logg *logger.Logger) error {
 	const op = "dataBase.postgres.Init"
 
@@ -110,6 +113,7 @@ func (db *DataBase) Init(logg *logger.Logger) error {
 	return nil
 }
 
+// Закрытие соединения с базой данных
 func (db *DataBase) Stop() error {
 	const op = "dataBase.postgres.Stop"
 	err := db.db.Close()
@@ -119,6 +123,7 @@ func (db *DataBase) Stop() error {
 	return nil
 }
 
+// Метод полученения информации о балансе кошелька
 func (db *DataBase) GetWallet(address string) (models.Wallet, error) {
 	const op = "dataBase.postgres.GetWallet"
 
@@ -136,9 +141,11 @@ func (db *DataBase) GetWallet(address string) (models.Wallet, error) {
 	return wallet, nil
 }
 
+// Метод отправки средств между кошельками
 func (db *DataBase) Send(from string, to string, amount decimal.Decimal) error {
 	const op = "dataBase.postgres.Send"
 
+	// Создание транзакции
 	tx, err := db.db.Begin()
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
@@ -156,7 +163,8 @@ func (db *DataBase) Send(from string, to string, amount decimal.Decimal) error {
 		tx.Rollback()
 
 		// Код ошибки ограничения базы данных
-		if err.(*pq.Error).Code == "23514" {
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) && pqErr.Code == "23514" {
 			return fmt.Errorf("Недостаточно средств на кошельке-отправителе")
 		}
 		return fmt.Errorf("%s: %w", op, err)
@@ -213,6 +221,7 @@ func (db *DataBase) Send(from string, to string, amount decimal.Decimal) error {
 	return nil
 }
 
+// Метод возвращающий информацию о n последних переводах
 func (db *DataBase) GetLast(count int) ([]models.Transaction, error) {
 	const op = "dataBase.postgres.GetLast"
 
